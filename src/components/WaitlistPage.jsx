@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { validateName, validateEmail, validatePhone } from "../lib/validation";
 import { COUNTRIES } from "../lib/countries";
@@ -125,16 +125,9 @@ function SuccessView() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(link);
-    } catch {
-      const el = document.createElement("textarea");
-      el.value = link;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand("copy");
-      document.body.removeChild(el);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
   };
 
   const encoded = encodeURIComponent(SHARE_TEXT + " " + link);
@@ -239,12 +232,27 @@ function SuccessView() {
   );
 }
 
+const VALIDATORS = {
+  name: (v) => validateName(v),
+  email: (v) => validateEmail(v),
+  phone: (v, dial) => validatePhone(v, dial),
+};
+
+function validateAll(fields) {
+  return {
+    name: VALIDATORS.name(fields.name),
+    email: VALIDATORS.email(fields.email),
+    phone: VALIDATORS.phone(fields.phone, fields.countryDial),
+  };
+}
+
 // ─── WaitlistPage ───────────────────────────────────────────
 export default function WaitlistPage() {
   const [fields, setFields] = useState({
     name: "",
     email: "",
     phone: "",
+    countryCode: "IN",
     countryDial: "+91",
     countryName: "India",
   });
@@ -254,46 +262,38 @@ export default function WaitlistPage() {
   const [submitError, setSubmitError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Live validate a single field
-  const validate = (name, value, extra = {}) => {
-    const dial = extra.countryDial ?? fields.countryDial;
-    switch (name) {
-      case "name":
-        return validateName(value);
-      case "email":
-        return validateEmail(value);
-      case "phone":
-        return validatePhone(value, dial);
-      default:
-        return null;
-    }
-  };
-
   const handleChange = (name, value) => {
     setFields((f) => ({ ...f, [name]: value }));
     if (touched[name]) {
-      setErrors((e) => ({ ...e, [name]: validate(name, value) }));
+      setErrors((e) => ({
+        ...e,
+        [name]: VALIDATORS[name]?.(value, fields.countryDial) ?? null,
+      }));
     }
   };
 
   const handleCountryChange = (e) => {
-    const selected = COUNTRIES[e.target.selectedIndex];
+    const selected = COUNTRIES.find((c) => c.code === e.target.value);
     setFields((f) => ({
       ...f,
+      countryCode: selected.code,
       countryDial: selected.dial,
       countryName: selected.name,
     }));
     if (touched.phone) {
       setErrors((er) => ({
         ...er,
-        phone: validatePhone(fields.phone, selected.dial),
+        phone: VALIDATORS.phone(fields.phone, selected.dial),
       }));
     }
   };
 
   const handleBlur = (name) => {
     setTouched((t) => ({ ...t, [name]: true }));
-    setErrors((e) => ({ ...e, [name]: validate(name, fields[name]) }));
+    setErrors((e) => ({
+      ...e,
+      [name]: VALIDATORS[name]?.(fields[name], fields.countryDial) ?? null,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -304,11 +304,7 @@ export default function WaitlistPage() {
     const allTouched = { name: true, email: true, phone: true };
     setTouched(allTouched);
 
-    const newErrors = {
-      name: validateName(fields.name),
-      email: validateEmail(fields.email),
-      phone: validatePhone(fields.phone, fields.countryDial),
-    };
+    const newErrors = validateAll(fields);
     setErrors(newErrors);
 
     if (Object.values(newErrors).some(Boolean)) return;
@@ -327,13 +323,11 @@ export default function WaitlistPage() {
 
       if (error) {
         if (error.code === "23505") {
-          // Unique constraint — email already registered
           setSubmitError("This email is already on the waitlist! 🎉");
         } else {
           setSubmitError("Something went wrong. Please try again.");
           console.error(error);
         }
-        setSubmitting(false);
         return;
       }
 
@@ -343,6 +337,7 @@ export default function WaitlistPage() {
         "Network error. Please check your connection and try again.",
       );
       console.error(err);
+    } finally {
       setSubmitting(false);
     }
   };
@@ -450,11 +445,12 @@ export default function WaitlistPage() {
                 <div className="phone-row">
                   <select
                     className="country-select"
+                    value={fields.countryCode}
                     onChange={handleCountryChange}
                     aria-label="Country code"
                   >
-                    {COUNTRIES.map((c, i) => (
-                      <option key={i} value={c.dial}>
+                    {COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.code}>
                         {c.flag} {c.dial}
                       </option>
                     ))}
@@ -467,7 +463,7 @@ export default function WaitlistPage() {
                     autoComplete="tel"
                     maxLength={15}
                     onChange={(e) => {
-                      const v = e.target.value.replace(/[^\d\s\-().]/g, "");
+                      const v = e.target.value.replace(/\D/g, "");
                       handleChange("phone", v);
                     }}
                     onBlur={() => handleBlur("phone")}
