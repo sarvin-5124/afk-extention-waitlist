@@ -1,0 +1,15 @@
+export const COUNTRIES = [
+  { flag: '🇮🇳', name: 'India',          dial: '+91'  },
+  { flag: '🇺🇸', name: 'United States',  dial: '+1'   },
+  { flag: '🇬🇧', name: 'United Kingdom', dial: '+44'  },
+  { flag: '🇨🇦', name: 'Canada',         dial: '+1'   },
+  { flag: '🇦🇪', name: 'UAE',            dial: '+971' },
+  { flag: '🇦🇺', name: 'Australia',      dial: '+61'  },
+  { flag: '🇸🇬', name: 'Singapore',      dial: '+65'  },
+  { flag: '🇩🇪', name: 'Germany',        dial: '+49'  },
+  { flag: '🇫🇷', name: 'France',         dial: '+33'  },
+  { flag: '🇯🇵', name: 'Japan',          dial: '+81'  },
+  { flag: '🇧🇷', name: 'Brazil',         dial: '+55'  },
+  { flag: '🇲🇾', name: 'Malaysia',       dial: '+60'  },
+  { flag: '🇿🇦', name: 'South Africa',   dial: '+27'  },
+]
