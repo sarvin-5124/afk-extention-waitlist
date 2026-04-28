@@ -604,6 +604,60 @@ body {
   color: var(--text-muted);
 }
 
+/* Wider card for table-heavy views */
+.card--wide { max-width: 960px; }
+
+/* Entries table */
+.entries-meta {
+  font-weight: 500;
+  color: #9bb8b2;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.entries-empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.entries-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(63,166,142,.12);
+  border-radius: var(--radius-md);
+  background: rgba(255,255,255,.55);
+}
+.entries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+.entries-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(245,251,249,.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(63,166,142,.18);
+  white-space: nowrap;
+}
+.entries-table tbody td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid rgba(63,166,142,.08);
+  vertical-align: middle;
+}
+.entries-table tbody tr:last-child td { border-bottom: none; }
+.entries-table tbody tr:hover { background: rgba(63,166,142,.05); }
+.cell-email, .cell-phone { color: var(--text-muted); white-space: nowrap; }
+.cell-date { color: var(--text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
 /* ── Responsive ─────────────────────────── */
 @media (max-width: 520px) {
   .card-inner, .success-view { padding: 28px 20px 24px; }

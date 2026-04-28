@@ -34,5 +34,13 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     to anon
     with check (true);
 
+  -- Allow reading rows for the /data dashboard.
+  -- NOTE: this exposes name/email/phone publicly via the anon key.
+  -- For a real deployment, gate /data behind auth and restrict this policy.
+  create policy "Allow public read"
+    on public.waitlist for select
+    to anon
+    using (true);
+
   ─────────────────────────────────────────────────────────────
 */
