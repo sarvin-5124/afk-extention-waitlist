@@ -2,7 +2,6 @@ import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { validateName, validateEmail, validatePhone } from "../lib/validation";
 import { COUNTRIES } from "../lib/countries";
-import "./WaitlistPage.css";
 
 const FEATURES = [
   {
